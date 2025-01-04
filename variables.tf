@@ -29,14 +29,24 @@ variable "registry_server" {
   default = "https://hub.docker.com/"
 }
 variable "registry_username" {
-  type    = string
-  default = "amolvkharche"
+  type = string
 }
 variable "registry_password" {
-  type    = string
-  default = "ak.akmol480"
+  type = string
 }
 variable "registry_email" {
   type    = string
   default = "amolvkharche@gmail.com"
+}
+variable "git_url" {
+  type = string
+}
+
+variable "git_username" {
+  type = string
+}
+
+variable "git_token" {
+  type      = string
+  sensitive = true
 }
