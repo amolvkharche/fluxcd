@@ -52,7 +52,7 @@ resource "kubernetes_namespace" "fluxnamespace" {
 
 resource "null_resource" "create_flux_secret" {
   provisioner "local-exec" {
-    command = "flux create secret git flux-repo-secret --url=${var.git_url}  --username=${var.username}   --bearer-token=${var.token} -n flux-system --kubeconfig=${local_file.kubeconfig.filename}"
+    command = "flux create secret git flux-repo-secret --url=${var.git_url}  --username=${var.git_username}   --bearer-token=${var.git_token} -n flux-system --kubeconfig=${local_file.kubeconfig.filename}"
   }
   depends_on = [
     kubernetes_namespace.fluxnamespace, local_file.kubeconfig
@@ -104,4 +104,19 @@ resource "helm_release" "blu_runwalcustomservice" {
   ]
 }
 
+resource "helm_release" "nginx_ingress" {
+  name       = "nginx"
+  namespace  = "ingress-nginx"
+  chart      = "ingress-nginx"
+  repository = "https://kubernetes.github.io/ingress-nginx"
+  version    = "4.7.1"
 
+  create_namespace = true
+
+  values = [
+    file("${path.module}/environment/do/production/nginx/nginx-ingress.yaml")
+  ]
+ depends_on = [
+    digitalocean_kubernetes_cluster.test, local_file.kubeconfig, kubernetes_secret.image_pull_secret
+  ]
+}
