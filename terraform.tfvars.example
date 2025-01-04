@@ -1,0 +1,4 @@
+do_token     = "DIGITAL_OCEAN_TOKEN"
+k8s_version  = "1.30.5-do.5"
+size         = "s-4vcpu-8gb"
+cluster_name = "test-cluster"

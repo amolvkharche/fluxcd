@@ -1,0 +1,20 @@
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: GitRepository
+metadata:
+  name: devops
+  namespace: blu-prod
+spec:
+  interval: 3m0s
+  suspend: false  # suspend the git repository
+  ref:
+    branch: main
+  secretRef:
+    name: git-secrets
+  url: ssh://github.com/Biz-Org/blu-devops.git
+  ignore: |
+    # exclude all
+    /*
+    # include charts directory
+    !/charts/
+    !/environment/e2e/production/
+    !/environment/do/production/
