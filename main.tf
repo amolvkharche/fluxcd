@@ -91,8 +91,7 @@ resource "helm_release" "blu_runwalcustomservice" {
     value = kubernetes_secret.image_pull_secret.metadata[0].name
   }
   values = [
-    file("./charts/blu-runwalcustomservice/values.yaml"),
-    file("./environment/do/production/app/blu-runwalcustomservice/prd.yaml")
+    file("./environment/do/production/app/blu-runwalcustomservice/release.yaml")
   ]
 
   timeout           = 300
