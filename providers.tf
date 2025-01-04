@@ -11,12 +11,12 @@ provider "digitalocean" {
 }
 
 provider "kubernetes" {
-  config_path = "C:/Users/vaibh/digitalOceank8s/kubeconfig" # Adjust based on your kubeconfig file
+  config_path = local_file.kubeconfig.filename
 
 }
 
 provider "helm" {
   kubernetes {
-    config_path = "C:/Users/vaibh/digitalOceank8s/kubeconfig"
+    config_path = local_file.kubeconfig.filename
   }
 }
