@@ -91,9 +91,9 @@ resource "helm_release" "blu_runwalcustomservice" {
     value = kubernetes_secret.image_pull_secret.metadata[0].name
   }
   values = [
-    file("./environment/do/production/app/blu-runwalcustomservice/release.yaml")
+    file("./environment/do/production/app/blu-runwalcustomservice/release.yaml"),
+    file("./environment/do/production/app/blu-runwalcustomservice/prd.yaml")
   ]
-
   timeout           = 300
   wait              = true
   recreate_pods     = false
@@ -115,7 +115,7 @@ resource "helm_release" "nginx_ingress" {
   values = [
     file("${path.module}/environment/do/production/nginx/nginx-ingress.yaml")
   ]
- depends_on = [
-    digitalocean_kubernetes_cluster.test, local_file.kubeconfig, kubernetes_secret.image_pull_secret
+  depends_on = [
+    digitalocean_kubernetes_cluster.test, local_file.kubeconfig
   ]
 }
