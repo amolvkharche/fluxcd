@@ -1,0 +1,37 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: ingress
+  namespace: nginx
+spec:
+  chart:
+    spec:
+      chart: ingress-nginx
+      version: "4.7.1"
+      sourceRef:
+        kind: HelmRepository
+        name: ingress-nginx
+        namespace: nginx
+      interval: 10m
+  interval: 10m0s
+  releaseName: dev-nginx
+  values:
+    defaultBackend:
+      enabled: false
+    controller:
+      metrics:
+        enabled: false
+        service:
+          annotations:
+            prometheus.io/scrape: "false"
+            prometheus.io/port: "10254"
+      ingressClassResource:
+        name: dev-nginx
+      resources:
+        limits:
+          cpu: 250m
+          memory: 0.5Gi
+        requests:
+          cpu: 200m
+          memory: 200Mi
