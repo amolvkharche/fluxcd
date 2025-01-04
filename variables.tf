@@ -36,7 +36,6 @@ variable "registry_password" {
 }
 variable "registry_email" {
   type    = string
-  default = "amolvkharche@gmail.com"
 }
 variable "git_url" {
   type = string
@@ -49,4 +48,13 @@ variable "git_username" {
 variable "git_token" {
   type      = string
   sensitive = true
+}
+variable "namespace" {
+  type    = string
+  default = "blu-prod"
+}
+
+variable "environment" {
+  type    = string
+  default = "production"
 }
