@@ -36,6 +36,7 @@ variable "registry_password" {
 }
 variable "registry_email" {
   type    = string
+  default = "amolvkharche@gmail.com"
 }
 variable "git_url" {
   type = string
@@ -49,12 +50,26 @@ variable "git_token" {
   type      = string
   sensitive = true
 }
+
 variable "namespace" {
-  type    = string
-  default = "blu-prod"
+  description = "List of namespaces to create"
+  type        = list(string)
 }
 
 variable "environment" {
   type    = string
   default = "production"
+}
+variable "namespace_folders" {
+  description = "Folder paths for each namespace"
+  type        = map(string)
+  default = {
+    "blu-prod"    = "production"
+    "blu-staging" = "staging"
+    "blu-uat"     = "uat"
+  }
+}
+variable "repos" {
+  type        = list(string)
+  description = "List of repository deployment file paths"
 }
