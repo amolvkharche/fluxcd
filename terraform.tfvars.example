@@ -9,5 +9,4 @@ git_username      = "username"
 git_url           = "https://github.com/"
 git_token         = "GITHUB_TOKEN"
 namespace         = ["blu-prod", "blu-staging", "blu-uat"]
-repos = ["environment/do/production/app/blu-runwalcustomservice/release.yaml", "environment/do/production/app/blu-smartform-lnt/nginx.yaml"]
-
+repos = ["environment/do/production/app/blu-runwalcustomservice/release.yaml"]
