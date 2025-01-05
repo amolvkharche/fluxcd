@@ -17,17 +17,18 @@ resource "local_file" "kubeconfig" {
 }
 
 resource "kubernetes_namespace" "namespace" {
+  for_each = toset(var.namespace)
+
   metadata {
+    name = each.key
     annotations = {
-      name = "blu-prod"
+      name = each.key
     }
-
     labels = {
-      mylabel = "blu-prod"
+      mylabel = each.key
     }
-
-    name = "blu-prod"
   }
+
   depends_on = [
     digitalocean_kubernetes_cluster.test, local_file.kubeconfig
   ]
@@ -60,9 +61,10 @@ resource "null_resource" "create_flux_secret" {
 }
 
 resource "kubernetes_secret" "image_pull_secret" {
+  for_each = toset(var.namespace)
   metadata {
     name      = "my-secret"
-    namespace = "blu-prod"
+    namespace = each.key
   }
   type = "kubernetes.io/dockerconfigjson"
   data = {
@@ -81,27 +83,39 @@ resource "kubernetes_secret" "image_pull_secret" {
     digitalocean_kubernetes_cluster.test, local_file.kubeconfig
   ]
 }
-
 resource "helm_release" "blu_runwalcustomservice" {
+  for_each = toset(var.namespace)
+
   name      = "blu-runwalcustomservice"
-  namespace = "blu-prod"
+  namespace = each.key
   chart     = "./charts/blu-runwalcustomservice"
+
   set {
     name  = "imagePullSecrets[0].name"
-    value = kubernetes_secret.image_pull_secret.metadata[0].name
+    value = kubernetes_secret.image_pull_secret[each.key].metadata[0].name
   }
+
   values = [
-    file("./environment/do/production/app/blu-runwalcustomservice/release.yaml"),
-    file("./environment/do/production/app/blu-runwalcustomservice/prd.yaml")
+    file(
+      "${path.module}/environment/do/${lookup(var.namespace_folders, each.key, "production")}/app/blu-runwalcustomservice/release.yaml"
+    ),
+
+    file(
+      "${path.module}/environment/do/${lookup(var.namespace_folders, each.key, "production")}/app/blu-runwalcustomservice/${each.key == "blu-prod" ? "prd" : each.key == "blu-staging" ? "dev" : each.key == "blu-uat" ? "uat" : null}.yaml"
+    )
   ]
   timeout           = 300
   wait              = true
   recreate_pods     = false
   disable_crd_hooks = false
+
   depends_on = [
-    digitalocean_kubernetes_cluster.test, local_file.kubeconfig, kubernetes_secret.image_pull_secret
+    digitalocean_kubernetes_cluster.test,
+    local_file.kubeconfig,
+    kubernetes_secret.image_pull_secret
   ]
 }
+
 
 resource "helm_release" "nginx_ingress" {
   name       = "nginx"
@@ -118,4 +132,15 @@ resource "helm_release" "nginx_ingress" {
   depends_on = [
     digitalocean_kubernetes_cluster.test, local_file.kubeconfig
   ]
+}
+
+resource "helm_release" "app_deploy" {
+  for_each = toset(var.repos)
+
+  name       = split("/", each.value)[4]
+  namespace  = "default"
+  chart      = "./charts/blu-runwalcustomservice"
+  values = [file(each.value)]
+timeout    = 300
+  create_namespace = true
 }
