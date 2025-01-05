@@ -135,12 +135,11 @@ resource "helm_release" "nginx_ingress" {
 }
 
 resource "helm_release" "app_deploy" {
-  for_each = toset(var.repos)
-
-  name       = split("/", each.value)[4]
-  namespace  = "default"
-  chart      = "./charts/blu-runwalcustomservice"
-  values = [file(each.value)]
-timeout    = 300
+  for_each         = toset(var.repos)
+  name             = split("/", each.value)[4]
+  namespace        = "default"
+  chart            = "./charts/blu-runwalcustomservice"
+  values           = [file(each.value)]
+  timeout          = 300
   create_namespace = true
 }
