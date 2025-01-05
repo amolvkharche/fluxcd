@@ -1,0 +1,21 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: blu-runwalcustomservice
+  namespace: blu-uat
+spec:
+  chart:
+    spec:
+      chart: ./charts/blu-runwalcustomservice
+      reconcileStrategy: Revision ## ChartVersion ## Revision
+      sourceRef:
+        kind: GitRepository
+        name: devops
+        namespace: blu-uat
+      valuesFiles:
+        - ./charts/blu-runwalcustomservice/values.yaml
+        - ./environment/do/uat/app/blu-runwalcustomservice/uat.yaml
+  interval: 10m0s
+  suspend: true
+  releaseName: blu-runwalcustomservice
