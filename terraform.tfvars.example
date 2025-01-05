@@ -8,5 +8,5 @@ registry_email    = "EMAIL_ID"
 git_username      = "username"
 git_url           = "https://github.com/"
 git_token         = "GITHUB_TOKEN"
-namespace         = ["blu-prod", "blu-staging", "blu-uat"]
-repos = ["environment/do/production/app/blu-runwalcustomservice/release.yaml"]
+namespace         = ["blu-prod", "blu-staging"]
+repos = ["environment/do/production/app/blu-runwalcustomservice/release.yaml"]    # PLEASE MAKE SURE FILE EXIST IN PATH
