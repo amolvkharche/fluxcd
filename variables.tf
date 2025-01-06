@@ -56,20 +56,15 @@ variable "namespace" {
   type        = list(string)
 }
 
-variable "environment" {
-  type    = string
-  default = "production"
-}
-variable "namespace_folders" {
-  description = "Folder paths for each namespace"
-  type        = map(string)
-  default = {
-    "blu-prod"    = "production"
-    "blu-staging" = "staging"
-    "blu-uat"     = "uat"
-  }
-}
 variable "repos" {
   type        = list(string)
   description = "List of repository deployment file paths"
+}
+
+variable "namespace_map" {
+  default = {
+    "production" = "blu-prod"
+    "staging"    = "blu-staging"
+    "uat"        = "blu-uat"
+  }
 }
