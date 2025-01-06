@@ -83,40 +83,22 @@ resource "kubernetes_secret" "image_pull_secret" {
     digitalocean_kubernetes_cluster.test, local_file.kubeconfig
   ]
 }
-resource "helm_release" "blu_runwalcustomservice" {
-  for_each = toset(var.namespace)
-
-  name      = "blu-runwalcustomservice"
-  namespace = each.key
-  chart     = "./charts/blu-runwalcustomservice"
-
-  set {
-    name  = "imagePullSecrets[0].name"
-    value = kubernetes_secret.image_pull_secret[each.key].metadata[0].name
+locals {
+  repo_namespace_map = {
+    for repo in var.repos :
+    repo => var.namespace_map[
+      regex("(production|staging|uat)", repo)[0]
+    ]
   }
-
-  values = [
-    file(
-      "${path.module}/environment/do/${lookup(var.namespace_folders, each.key, "production")}/app/blu-runwalcustomservice/release.yaml"
-    ),
-
-    file(
-      "${path.module}/environment/do/${lookup(var.namespace_folders, each.key, "production")}/app/blu-runwalcustomservice/${each.key == "blu-prod" ? "prd" : each.key == "blu-staging" ? "dev" : each.key == "blu-uat" ? "uat" : null}.yaml"
-    )
-  ]
-  timeout           = 300
-  wait              = true
-  recreate_pods     = false
-  disable_crd_hooks = false
-
-  depends_on = [
-    digitalocean_kubernetes_cluster.test,
-    local_file.kubeconfig,
-    kubernetes_secret.image_pull_secret
-  ]
 }
 
-
+resource "null_resource" "apply_manifests" {
+  for_each = local.repo_namespace_map
+  depends_on = [digitalocean_kubernetes_cluster.test, local_file.kubeconfig]
+ provisioner "local-exec" {
+    command = "KUBECONFIG=${local_file.kubeconfig.filename} kubectl apply -n ${each.value} -f ${each.key}"
+  }
+}
 resource "helm_release" "nginx_ingress" {
   name       = "nginx"
   namespace  = "ingress-nginx"
@@ -132,14 +114,4 @@ resource "helm_release" "nginx_ingress" {
   depends_on = [
     digitalocean_kubernetes_cluster.test, local_file.kubeconfig
   ]
-}
-
-resource "helm_release" "app_deploy" {
-  for_each         = toset(var.repos)
-  name             = split("/", each.value)[4]
-  namespace        = "default"
-  chart            = "./charts/blu-runwalcustomservice"
-  values           = [file(each.value)]
-  timeout          = 300
-  create_namespace = true
 }
